@@ -352,6 +352,20 @@ Module Module1
             NewMoveOption.AddToPossibleMoves(NewMove)
             Return NewMoveOption
         End Function
+
+        Private Function CreateTibbleCrossMoveOption(ByVal Direction As Integer) As MoveOption
+            Dim NewMoveOption As MoveOption = New MoveOption("TibbleCross")
+            Dim NewMove As Move = New Move(2 * Direction, 2 * Direction)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(-2 * Direction, 2 * Direction)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(2 * Direction, -2 * Direction)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(-2 * Direction, -2 * Direction)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            Return NewMoveOption
+        End Function
+
         '------------------------------------------------------------------------------------------
 
         Private Function CreateMoveOption(ByVal Name As String, ByVal Direction As Integer) As MoveOption 'translates a name into new move options
@@ -363,18 +377,22 @@ Module Module1
                 Return CreateFaujdarMoveOption(Direction)
             ElseIf Name = "jazair" Then
                 Return CreateJazairMoveOption(Direction)
+            ElseIf Name = "TibbleCross" Then
+                Return CreateTibbleCrossMoveOption(Direction)
             Else
                 Return CreateCuirassierMoveOption(Direction)
             End If
         End Function
 
         Private Sub CreateMoveOptions() 'initilses the starting move option queue
+            Players(0).AddToMoveOptionQueue(CreateMoveOption("TibbleCross", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("ryott", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("chowkidar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("cuirassier", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("faujdar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("jazair", 1))
 
+            Players(0).AddToMoveOptionQueue(CreateMoveOption("TibbleCross", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("ryott", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("chowkidar", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("jazair", -1))
