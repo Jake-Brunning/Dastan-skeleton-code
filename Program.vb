@@ -352,6 +352,17 @@ Module Module1
             NewMoveOption.AddToPossibleMoves(NewMove)
             Return NewMoveOption
         End Function
+
+        Private Function CreateRookMoveOption(ByVal direction As Integer) As MoveOption
+            Dim NewMoveOption As MoveOption = New MoveOption("rook")
+            For i As Integer = 1 To 7
+                NewMoveOption.AddToPossibleMoves(New Move(i * direction, 0))
+                NewMoveOption.AddToPossibleMoves(New Move(-i * direction, 0))
+                NewMoveOption.AddToPossibleMoves(New Move(0, i * direction))
+                NewMoveOption.AddToPossibleMoves(New Move(0, -i * direction))
+            Next
+            Return NewMoveOption
+        End Function
         '------------------------------------------------------------------------------------------
 
         Private Function CreateMoveOption(ByVal Name As String, ByVal Direction As Integer) As MoveOption 'translates a name into new move options
@@ -363,18 +374,22 @@ Module Module1
                 Return CreateFaujdarMoveOption(Direction)
             ElseIf Name = "jazair" Then
                 Return CreateJazairMoveOption(Direction)
+            ElseIf Name = "rooK" Then
+                Return CreateRookMoveOption(Direction)
             Else
                 Return CreateCuirassierMoveOption(Direction)
             End If
         End Function
 
         Private Sub CreateMoveOptions() 'initilses the starting move option queue
+            Players(0).AddToMoveOptionQueue(CreateMoveOption("rook", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("ryott", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("chowkidar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("cuirassier", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("faujdar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("jazair", 1))
 
+            Players(1).AddToMoveOptionQueue(CreateMoveOption("rook", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("ryott", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("chowkidar", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("jazair", -1))
@@ -508,12 +523,18 @@ Module Module1
         End Function
 
         Public Function CheckIfThereIsAMoveToSquare(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) As Boolean
+
             'Iterates through all possible moves for a piece
             'If input = possible move then return true
             Dim StartRow As Integer = StartSquareReference \ 10
             Dim StartColumn As Integer = StartSquareReference Mod 10
             Dim FinishRow As Integer = FinishSquareReference \ 10
             Dim FinishColumn As Integer = FinishSquareReference Mod 10
+
+            If Name = "rook" Then
+                Return CheckRookMove(StartRow, FinishRow, StartColumn, FinishColumn)
+            End If
+
             For Each M In PossibleMoves
                 If StartRow + M.GetRowChange() = FinishRow And StartColumn + M.GetColumnChange() = FinishColumn Then
                     Return True
@@ -521,6 +542,15 @@ Module Module1
             Next
             Return False
         End Function
+
+        Private Function CheckRookMove() As Boolean
+            For Each M In PossibleMoves
+                If StartRow + M.GetRowChange() = FinishRow And StartColumn + M.GetColumnChange() = FinishColumn And Then
+                    Return True
+                End If
+            Next
+        End Function
+
     End Class
 
     Class Move 'A given move for a given piece. One piece will have many moves
