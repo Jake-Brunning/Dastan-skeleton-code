@@ -543,9 +543,39 @@ Module Module1
             Return False
         End Function
 
-        Private Function CheckRookMove() As Boolean
+        Private Function CheckRookMove(ByVal StartRow As Integer, ByVal FinishRow As Integer, ByVal StartColumn As Integer, ByVal FinishColumn As Integer) As Boolean
             For Each M In PossibleMoves
-                If StartRow + M.GetRowChange() = FinishRow And StartColumn + M.GetColumnChange() = FinishColumn And Then
+                If StartRow + M.GetRowChange() = FinishRow And StartColumn + M.GetColumnChange() = FinishColumn Then
+                    'check if there is no piece on the way to the move
+                    Dim changeInRow As Integer = FinishRow - StartRow
+                    Dim changeInColumn As Integer = FinishColumn - StartColumn
+                    Dim toIterateTo As Integer = 0
+                    Dim incremeant As Integer = 1
+
+                    If changeInRow = 0 Then
+                        toIterateTo = changeInColumn
+                    Else
+                        toIterateTo = changeInRow
+                    End If
+
+                    If toIterateTo < 0 Then
+                        incremeant = -1
+                    End If
+
+                    If changeInRow = 0 Then
+                        For i As Integer = 1 To toIterateTo - 1 Step incremeant
+                            If board(changeInRow * i + StartColumn).containsPiece Then
+
+                            End If
+                        Next
+                    Else
+                        For i As Integer = 1 To toIterateTo - 1 Step incremeant
+
+                        Next
+                    End If
+
+
+
                     Return True
                 End If
             Next
