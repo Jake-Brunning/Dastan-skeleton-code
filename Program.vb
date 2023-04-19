@@ -103,7 +103,7 @@ Module Module1
                         Console.Write("^")
                     End If
 
-
+                    'hello world
 
                 Next
                 Console.WriteLine("|")
