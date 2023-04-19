@@ -70,6 +70,52 @@ Module Module1
             Console.WriteLine()
         End Sub
 
+        Private Sub DisplayBoardWithMoveOptions(ByVal SquareReference As Integer, ByVal pos As Integer)
+            'Convert square reference to row and colum
+
+
+            Console.Write(Environment.NewLine & "   ")
+            'Write column numbers
+            For Column = 1 To NoOfColumns
+                Console.Write(Column.ToString() & "  ")
+            Next
+            Console.Write(Environment.NewLine & "  ")
+            'Line gap between column and actual board
+            For Count = 1 To NoOfColumns
+                Console.Write("---")
+            Next
+            Console.WriteLine("-")
+            For Row = 1 To NoOfRows
+                Console.Write(Row.ToString() & " ") 'row number
+                For Column = 1 To NoOfColumns 'spaces
+                    Dim Index As Integer = GetIndexOfSquare(Row * 10 + Column)
+                    Console.Write("|" & Board(Index).GetSymbol())
+                    'Display pieces
+                    Dim PieceInSquare As Piece = Board(Index).GetPieceInSquare()
+                    If PieceInSquare Is Nothing Then
+                        Console.Write(" ")
+                    Else
+                        Console.Write(PieceInSquare.GetSymbol())
+                    End If
+
+
+                    If Board(GetIndexOfSquare(SquareReference)).GetPieceInSquare().GetBelongsTo().CheckPlayerMove(pos, SquareReference, Row * 10 + Column) And (Board(GetIndexOfSquare(SquareReference)).GetPieceInSquare().GetBelongsTo().SameAs(Board(GetIndexOfSquare(Row * 10 + Column)).GetBelongsTo()) = False) Then
+                        Console.Write("^")
+                    End If
+
+
+
+                Next
+                Console.WriteLine("|")
+            Next
+            Console.Write("  -")
+            For Column = 1 To NoOfColumns
+                Console.Write("---")
+            Next
+            Console.WriteLine()
+            Console.WriteLine()
+        End Sub
+
         Private Sub DisplayState() 'the text under the board stating the move option offer, and which player's turn
             DisplayBoard()
             Console.WriteLine("Move option offer: " & MoveOptionOffer(MoveOptionOfferPosition))
@@ -195,8 +241,11 @@ Module Module1
                 Dim StartSquareReference As Integer
                 While Not SquareIsValid 'loop unitl a piece has been selected
                     StartSquareReference = GetSquareReference("containing the piece to move")
-                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True) '
+                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True)
                 End While
+                'Display the available moves --------------
+                DisplayBoardWithMoveOptions(StartSquareReference, Choice)
+                '------------------------------------------
                 Dim FinishSquareReference As Integer
                 SquareIsValid = False
                 While Not SquareIsValid
@@ -625,6 +674,10 @@ Module Module1
         Public Sub ChangeScore(ByVal Amount As Integer)
             Score += Amount
         End Sub
+
+        Public Function getMoveOptionInPos(ByVal pos As Integer) As MoveOption
+            Return Queue.GetMoveOptionInPosition(pos - 1)
+        End Function
 
         Public Function CheckPlayerMove(ByVal Pos As Integer, ByVal StartSquareReference As Integer, FinishSquareReference As Integer) As Boolean 'checks if a move is possible or not
             Dim Temp As MoveOption = Queue.GetMoveOptionInPosition(Pos - 1) ' Temp = Move the player has selected
