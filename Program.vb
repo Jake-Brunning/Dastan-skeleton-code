@@ -73,11 +73,12 @@ Module Module1
         Private Sub DisplayBoardWithMoveOptions(ByVal SquareReference As Integer, ByVal pos As Integer)
             'Convert square reference to row and colum
 
+            Const space As String = "   "
 
             Console.Write(Environment.NewLine & "   ")
             'Write column numbers
             For Column = 1 To NoOfColumns
-                Console.Write(Column.ToString() & "  ")
+                Console.Write(Column.ToString() & "   ")
             Next
             Console.Write(Environment.NewLine & "  ")
             'Line gap between column and actual board
@@ -91,19 +92,32 @@ Module Module1
                     Dim Index As Integer = GetIndexOfSquare(Row * 10 + Column)
                     Console.Write("|" & Board(Index).GetSymbol())
                     'Display pieces
+                    Dim canMoveToSquare As Boolean = Board(GetIndexOfSquare(SquareReference)).GetPieceInSquare().GetBelongsTo().CheckPlayerMove(pos, SquareReference, Row * 10 + Column)
                     Dim PieceInSquare As Piece = Board(Index).GetPieceInSquare()
-                    If PieceInSquare Is Nothing Then
-                        Console.Write(" ")
+
+
+                    If PieceInSquare Is Nothing And canMoveToSquare Then
+                        Console.Write(" ^")
+                    ElseIf PieceInSquare IsNot Nothing And canMoveToSquare = False Then
+                        Console.Write(PieceInSquare.GetSymbol() + " ")
+                    ElseIf PieceInSquare IsNot Nothing And canMoveToSquare Then
+                        If Board(GetIndexOfSquare(Row * 10 + Column)).GetPieceInSquare().GetBelongsTo().SameAs(CurrentPlayer) = False Then
+                            Console.Write(PieceInSquare.GetSymbol() + "^")
+                        Else
+                            Console.Write(PieceInSquare.GetSymbol() + " ")
+                        End If
                     Else
-                        Console.Write(PieceInSquare.GetSymbol())
+                        Console.Write("  ")
                     End If
 
 
-                    If Board(GetIndexOfSquare(SquareReference)).GetPieceInSquare().GetBelongsTo().CheckPlayerMove(pos, SquareReference, Row * 10 + Column) And (Board(GetIndexOfSquare(SquareReference)).GetPieceInSquare().GetBelongsTo().SameAs(Board(GetIndexOfSquare(Row * 10 + Column)).GetBelongsTo()) = False) Then
-                        Console.Write("^")
-                    End If
-
-                    'hello world
+                    'If canMoveToSquare And Board(GetIndexOfSquare(Row * 10 + Column)).GetPieceInSquare() IsNot Nothing Then
+                    '    If Board(GetIndexOfSquare(Row * 10 + Column)).GetPieceInSquare().GetBelongsTo().SameAs(CurrentPlayer) = False Then
+                    '        Console.Write("^")
+                    '    End If
+                    'ElseIf canMoveToSquare Then
+                    '    Console.Write("^")
+                    'End If
 
                 Next
                 Console.WriteLine("|")
