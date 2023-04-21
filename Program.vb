@@ -73,7 +73,6 @@ Module Module1
         Private Sub DisplayBoardWithMoveOptions(ByVal SquareReference As Integer, ByVal pos As Integer)
             'Convert square reference to row and colum
 
-            Const space As String = "   "
 
             Console.Write(Environment.NewLine & "   ")
             'Write column numbers
