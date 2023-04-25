@@ -23,8 +23,14 @@ Module Module1
         Protected RGen As New Random()
 
         Sub New(ByVal R As Integer, ByVal C As Integer, ByVal NoOfPieces As Integer) 'Initilses attributes (just a normal constructor)
-            Players.Add(New Player("Player One", 1))
-            Players.Add(New Player("Player Two", -1))
+            Console.WriteLine("Enter player One name : ")
+            Dim name1 As String = Console.ReadLine()
+            Players.Add(New Player(name1, 1))
+
+            Console.WriteLine("Enter player One name : ")
+            Dim name2 As String = Console.ReadLine()
+            Players.Add(New Player(name2, 2))
+
             CreateMoveOptions()
             NoOfRows = R
             NoOfColumns = C
@@ -108,16 +114,6 @@ Module Module1
                     Else
                         Console.Write("  ")
                     End If
-
-
-                    'If canMoveToSquare And Board(GetIndexOfSquare(Row * 10 + Column)).GetPieceInSquare() IsNot Nothing Then
-                    '    If Board(GetIndexOfSquare(Row * 10 + Column)).GetPieceInSquare().GetBelongsTo().SameAs(CurrentPlayer) = False Then
-                    '        Console.Write("^")
-                    '    End If
-                    'ElseIf canMoveToSquare Then
-                    '    Console.Write("^")
-                    'End If
-
                 Next
                 Console.WriteLine("|")
             Next
@@ -290,6 +286,9 @@ Module Module1
         End Sub
 
         Private Sub DisplayFinalResult()
+            Console.WriteLine(Players(0).GetName() + " score: " + Players(0).GetScore().ToString())
+            Console.WriteLine(Players(1).GetName() + " score: " + Players(1).GetScore().ToString())
+
             If Players(0).GetScore() = Players(1).GetScore() Then
                 Console.WriteLine("Draw!")
             ElseIf Players(0).GetScore() > Players(1).GetScore() Then
