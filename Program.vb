@@ -23,13 +23,23 @@ Module Module1
         Protected RGen As New Random()
 
         Sub New(ByVal R As Integer, ByVal C As Integer, ByVal NoOfPieces As Integer) 'Initilses attributes (just a normal constructor)
-            Console.WriteLine("Enter player One name : ")
-            Dim name1 As String = Console.ReadLine()
-            Players.Add(New Player(name1, 1))
+            'custom name adding, while loop makes it so names cannot be the same
+            Dim nameSame As Boolean = False
+            While nameSame = False
+                Console.WriteLine("Enter player One name : ")
+                Dim name1 As String = Console.ReadLine()
+                Players.Add(New Player(name1, 1))
 
-            Console.WriteLine("Enter player One name : ")
-            Dim name2 As String = Console.ReadLine()
-            Players.Add(New Player(name2, 2))
+                Console.WriteLine("Enter player One name : ")
+                Dim name2 As String = Console.ReadLine()
+                Players.Add(New Player(name2, 2))
+
+                If name1 <> name2 Then
+                    nameSame = True
+                Else
+                    Console.WriteLine("make sure names are different")
+                End If
+            End While
 
             CreateMoveOptions()
             NoOfRows = R
@@ -259,7 +269,7 @@ Module Module1
                 SquareIsValid = False
                 While Not SquareIsValid
                     FinishSquareReference = GetSquareReference("to move to")
-                    SquareIsValid = CheckSquareIsValid(FinishSquareReference, False) 'Will return true as long as the square is valid, not the move
+                    SquareIsValid = CheckSquareIsValid(FinishSquareReference, False) And CurrentPlayer.CheckPlayerMove(Choice, StartSquareReference, FinishSquareReference)  'Will return true as long as the square is valid, not the move
                 End While
                 Dim MoveLegal As Boolean = CurrentPlayer.CheckPlayerMove(Choice, StartSquareReference, FinishSquareReference) 'checks if the move is in the possible move options for that move
                 If MoveLegal Then 'Perform the move (if its legal)
