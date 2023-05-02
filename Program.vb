@@ -41,13 +41,42 @@ Module Module1
                 End If
             End While
 
+            Dim isInt As Boolean = False
+            Dim p1Col As Integer = 1
+            Dim p2Col As Integer = 1
+
+            While isInt = False
+                Console.WriteLine("player 1 enter a column to put kotla (1 to 6)")
+                Dim tempx As Integer = 0
+                If Integer.TryParse(Console.ReadLine(), tempx) Then
+                    If tempx >= 0 Or tempx <= 6 Then
+                        isInt = True
+                        p1Col = tempx
+                    End If
+                End If
+            End While
+
+
+            isInt = False
+
+            While isInt = False
+                Console.WriteLine("player 2 enter a column to put kotla (1 to 6)")
+                Dim tempx As Integer = 0
+                If Integer.TryParse(Console.ReadLine(), tempx) Then
+                    If tempx >= 0 Or tempx <= 6 Then
+                        isInt = True
+                        p2Col = tempx
+                    End If
+                End If
+            End While
+
             CreateMoveOptions()
             NoOfRows = R
             NoOfColumns = C
             MoveOptionOfferPosition = 0
             CreateMoveOptionOffer()
-            CreateBoard()
-            CreatePieces(NoOfPieces)
+            CreateBoard(p1Col, p2Col)
+            CreatePieces(NoOfPieces, p1Col, p2Col)
             CurrentPlayer = Players(0)
         End Sub
 
@@ -308,14 +337,14 @@ Module Module1
             End If
         End Sub
 
-        Private Sub CreateBoard() 'Initilises the board
+        Private Sub CreateBoard(ByVal p1col As Integer, ByVal p2col As Integer) 'Initilises the board
             Dim S As Square
             Board = New List(Of Square)
             For Row = 1 To NoOfRows
                 For Column = 1 To NoOfColumns
-                    If Row = 1 And Column = NoOfColumns \ 2 Then
+                    If Row = 1 And Column = p1col Then
                         S = New Kotla(Players(0), "K")
-                    ElseIf Row = NoOfRows And Column = NoOfColumns \ 2 + 1 Then
+                    ElseIf Row = NoOfRows And Column = p2col Then
                         S = New Kotla(Players(1), "k")
                     Else
                         S = New Square()
@@ -325,20 +354,20 @@ Module Module1
             Next
         End Sub
 
-        Private Sub CreatePieces(ByVal NoOfPieces As Integer) 'initiles player 1 and 2 pieces and mirzas
+        Private Sub CreatePieces(ByVal NoOfPieces As Integer, ByVal p1Col As Integer, ByVal p2Col As Integer) 'initiles player 1 and 2 pieces and mirzas
             Dim CurrentPiece As Piece
             For Count = 1 To NoOfPieces
                 CurrentPiece = New Piece("piece", Players(0), 1, "!")
                 Board(GetIndexOfSquare(2 * 10 + Count + 1)).SetPiece(CurrentPiece)
             Next
             CurrentPiece = New Piece("mirza", Players(0), 5, "1")
-            Board(GetIndexOfSquare(10 + NoOfColumns \ 2)).SetPiece(CurrentPiece)
+            Board(GetIndexOfSquare(10 + p1Col)).SetPiece(CurrentPiece)
             For Count = 1 To NoOfPieces
                 CurrentPiece = New Piece("piece", Players(1), 1, """")
                 Board(GetIndexOfSquare((NoOfRows - 1) * 10 + Count + 1)).SetPiece(CurrentPiece)
             Next
             CurrentPiece = New Piece("mirza", Players(1), 5, "2")
-            Board(GetIndexOfSquare(NoOfRows * 10 + (NoOfColumns \ 2 + 1))).SetPiece(CurrentPiece)
+            Board(GetIndexOfSquare(NoOfRows * 10 + p2Col)).SetPiece(CurrentPiece)
         End Sub
 
         Private Sub CreateMoveOptionOffer() 'the move option offers for both players to use. seperate from the move queue
