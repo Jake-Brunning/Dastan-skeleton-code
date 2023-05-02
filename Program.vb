@@ -21,6 +21,8 @@ Module Module1
         Protected MoveOptionOffer As New List(Of String) 'the list of offer for moves. Seperate from each player's move option list
         Protected CurrentPlayer As Player 'the player doing his turn. Changed at the end of the play game while loop
         Protected RGen As New Random()
+        Const p1 As Integer = 35 ' portal 2
+        Const p2 As Integer = 51 'portal 2
 
         Sub New(ByVal R As Integer, ByVal C As Integer, ByVal NoOfPieces As Integer) 'Initilses attributes (just a normal constructor)
             'custom name adding, while loop makes it so names cannot be the same
@@ -56,7 +58,6 @@ Module Module1
                 End If
             End While
 
-
             isInt = False
 
             While isInt = False
@@ -75,7 +76,7 @@ Module Module1
             NoOfColumns = C
             MoveOptionOfferPosition = 0
             CreateMoveOptionOffer()
-            CreateBoard(p1Col, p2Col)
+            CreateBoard(p1Col, p2Col, p1, p2)
             CreatePieces(NoOfPieces, p1Col, p2Col)
             CurrentPlayer = Players(0)
         End Sub
@@ -321,7 +322,17 @@ Module Module1
         End Sub
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
-            Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
+            If Board(GetIndexOfSquare(FinishSquareReference)).GetSymbol() = "0" Then 'if its a portal
+
+                If FinishSquareReference = p1 Then
+                    FinishSquareReference = p2
+                Else
+                    FinishSquareReference = p1
+                End If
+                Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
+            Else
+                Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
+            End If
         End Sub
 
         Private Sub DisplayFinalResult()
@@ -337,7 +348,7 @@ Module Module1
             End If
         End Sub
 
-        Private Sub CreateBoard(ByVal p1col As Integer, ByVal p2col As Integer) 'Initilises the board
+        Private Sub CreateBoard(ByVal p1col As Integer, ByVal p2col As Integer, ByVal P1 As Integer, ByVal P2 As Integer) 'Initilises the board
             Dim S As Square
             Board = New List(Of Square)
             For Row = 1 To NoOfRows
@@ -352,6 +363,9 @@ Module Module1
                     Board.Add(S)
                 Next
             Next
+
+            Board(GetIndexOfSquare(P1)) = New Portal()
+            Board(GetIndexOfSquare(P2)) = New Portal()
         End Sub
 
         Private Sub CreatePieces(ByVal NoOfPieces As Integer, ByVal p1Col As Integer, ByVal p2Col As Integer) 'initiles player 1 and 2 pieces and mirzas
@@ -588,6 +602,15 @@ Module Module1
                 End If
             End If
         End Function
+    End Class
+
+    Class Portal
+        Inherits Square
+        Public Sub New()
+            MyBase.New()
+            Symbol = "0"
+        End Sub
+
     End Class
 
     Class MoveOption 'contains all possible moves of A SINGULAR piece
