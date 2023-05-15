@@ -631,4 +631,27 @@ Module Module1
             Return Temp.CheckIfThereIsAMoveToSquare(StartSquareReference, FinishSquareReference) 'loops through all possible moves to see if there is a possible move
         End Function
     End Class
+
+    Class WeatherEvent
+        Private countdown As Integer = 2
+        Private coord As Integer = 0
+        public Function countDownComplete() As Boolean  
+            If countdown = 0 Then
+                Return True
+            End If
+            countdown = countdown - 1
+            Return false
+        End Function      
+        
+        public Sub setWeatherLocation(byval coords As Integer) 'as user inputs not board indexes
+            Me.coord = coords
+        End Sub
+
+        Public Function getWeatherLocation() As Integer 
+            Return coord
+        End Function
+        
+        
+    End Class
+
 End Module
