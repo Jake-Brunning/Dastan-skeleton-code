@@ -216,20 +216,21 @@ Module Module1
                 End If
 
                 If weatherEventOccured Then
-                    Console.WriteLine(currentWeatherEvent.Count() & " moves until weather event")
                     If currentWeatherEvent.Count() = 0 Then
                         Dim column As Integer = currentWeatherEvent.getWeatherLocation() Mod NoOfColumns
-                        For i As Integer = 0 To NoOfRows - 1
+                        For i As Integer = 0 To NoOfColumns - 1
                             Board(column + (NoOfColumns * i)).SetPiece(Nothing)
-                            If Board(column + (NoOfColumns * i)) Is Kotla Then
+                            If Board(column + (NoOfColumns * i)).GetSymbol() <> " " Then
                                 Board(column + (NoOfColumns * i)) = New Square()
                             End If
                         Next
+                        weatherEventOccured = False
                     End If
-                    weatherEventOccured = False
+                Else
+                    weatherEventOccured = WeatherEventOccurs()
                 End If
 
-                weatherEventOccured = WeatherEventOccurs()
+
                 If CurrentPlayer.SameAs(Players(0)) Then 'swap players
                     CurrentPlayer = Players(1)
                 Else
@@ -242,18 +243,18 @@ Module Module1
         End Sub
 
         Private Function WeatherEventOccurs() As Boolean
-            RGen.Next(1, 2)
-            If RGen == 1 Then
+            Randomize()
+            If RGen.Next(1, 3) = 1 Then 'Upper limit on rgen.Next is actually a strict inequality. the lower one is not a strict inequality
                 Return False
             End If
 
             Console.WriteLine("Weather event has occured!")
-            Dim indexOfSquare As Integer = RGen.Next(0, 35)
-            While Board(indexOfSquare).GetPieceInSquare() = Nothing
-                indexOfSquare = RGen.Next(0, 35)
+            Dim indexOfSquare As Integer = RGen.Next(0, 36)
+            While Board(indexOfSquare).GetPieceInSquare() IsNot Nothing
+                indexOfSquare = RGen.Next(0, 36)
             End While
 
-            Console.WriteLine("Weather event has occured on row " indexOfSquare \ 10 & " and column " & indexOfSquare Mod 10)
+            Console.WriteLine("Weather event has occured on row " & (indexOfSquare \ NoOfColumns) + 1 & " and column " & (indexOfSquare Mod NoOfRows) + 1)
             currentWeatherEvent = New WeatherEvent()
             currentWeatherEvent.setWeatherLocation(indexOfSquare)
             Return True
@@ -669,14 +670,11 @@ Module Module1
     End Class
 
     Class WeatherEvent
-        Private countdown As Integer = 4
+        Private countdown As Integer = 3
         Private coord As Integer = 0
-        Public Function Count() As Boolean
-            If countdown = 0 Then
-                Return True
-            End If
+        Public Function Count() As Integer
             countdown = countdown - 1
-            Return False
+            Return countdown
         End Function
 
         Public Sub setWeatherLocation(ByVal coords As Integer) 'as board indexes
