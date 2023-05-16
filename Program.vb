@@ -21,6 +21,7 @@ Module Module1
         Protected MoveOptionOffer As New List(Of String) 'the list of offer for moves. Seperate from each player's move option list
         Protected CurrentPlayer As Player 'the player doing his turn. Changed at the end of the play game while loop
         Protected RGen As New Random()
+        Protected currentWeatherEvent As WeatherEvent
 
         Sub New(ByVal R As Integer, ByVal C As Integer, ByVal NoOfPieces As Integer) 'Initilses attributes (just a normal constructor)
             Players.Add(New Player("Player One", 1))
@@ -180,6 +181,7 @@ Module Module1
 
         Public Sub PlayGame()
             Dim GameOver As Boolean = False
+            Dim weatherEventOccured As Boolean = False
             While Not GameOver
                 DisplayState()
                 Dim SquareIsValid As Boolean = False
@@ -212,6 +214,22 @@ Module Module1
                     UpdatePlayerScore(PointsForPieceCapture)
                     Console.WriteLine("New score: " & CurrentPlayer.GetScore() & Environment.NewLine)
                 End If
+
+                If weatherEventOccured Then
+                    Console.WriteLine(currentWeatherEvent.Count() & " moves until weather event")
+                    If currentWeatherEvent.Count() = 0 Then
+                        Dim column As Integer = currentWeatherEvent.getWeatherLocation() Mod NoOfColumns
+                        For i As Integer = 0 To NoOfRows - 1
+                            Board(column + (NoOfColumns * i)).SetPiece(Nothing)
+                            If Board(column + (NoOfColumns * i)) Is Kotla Then
+                                Board(column + (NoOfColumns * i)) = New Square()
+                            End If
+                        Next
+                    End If
+                    weatherEventOccured = False
+                End If
+
+                weatherEventOccured = WeatherEventOccurs()
                 If CurrentPlayer.SameAs(Players(0)) Then 'swap players
                     CurrentPlayer = Players(1)
                 Else
@@ -222,6 +240,24 @@ Module Module1
             DisplayState()
             DisplayFinalResult()
         End Sub
+
+        Private Function WeatherEventOccurs() As Boolean
+            RGen.Next(1, 2)
+            If RGen == 1 Then
+                Return False
+            End If
+
+            Console.WriteLine("Weather event has occured!")
+            Dim indexOfSquare As Integer = RGen.Next(0, 35)
+            While Board(indexOfSquare).GetPieceInSquare() = Nothing
+                indexOfSquare = RGen.Next(0, 35)
+            End While
+
+            Console.WriteLine("Weather event has occured on row " indexOfSquare \ 10 & " and column " & indexOfSquare Mod 10)
+            currentWeatherEvent = New WeatherEvent()
+            currentWeatherEvent.setWeatherLocation(indexOfSquare)
+            Return True
+        End Function
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
@@ -633,25 +669,23 @@ Module Module1
     End Class
 
     Class WeatherEvent
-        Private countdown As Integer = 2
+        Private countdown As Integer = 4
         Private coord As Integer = 0
-        public Function countDownComplete() As Boolean  
+        Public Function Count() As Boolean
             If countdown = 0 Then
                 Return True
             End If
             countdown = countdown - 1
-            Return false
-        End Function      
-        
-        public Sub setWeatherLocation(byval coords As Integer) 'as user inputs not board indexes
+            Return False
+        End Function
+
+        Public Sub setWeatherLocation(ByVal coords As Integer) 'as board indexes
             Me.coord = coords
         End Sub
 
-        Public Function getWeatherLocation() As Integer 
+        Public Function getWeatherLocation() As Integer
             Return coord
         End Function
-        
-        
     End Class
 
 End Module
