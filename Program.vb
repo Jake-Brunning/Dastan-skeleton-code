@@ -223,6 +223,7 @@ Module Module1
             DisplayFinalResult()
         End Sub
 
+
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
         End Sub
@@ -488,6 +489,27 @@ Module Module1
                 End If
             End If
         End Function
+    End Class
+
+    Class Tazis
+        Inherits Square
+        Protected CampedTurns As Integer
+
+        Public Overrides Sub SetPiece(P As Piece)
+            MyBase.SetPiece(P)
+            If P.GetBelongsTo().GetDirection() = 1 Then
+                Symbol = "A"
+            Else
+                Symbol = "a"
+            End If
+            PieceInSquare = P
+        End Sub
+
+        Public Overrides Function RemovePiece() As Piece
+            Symbol = "x"
+            Return MyBase.RemovePiece()
+        End Function
+
     End Class
 
     Class MoveOption 'contains all possible moves of A SINGULAR piece
