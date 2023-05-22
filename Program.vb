@@ -206,7 +206,9 @@ Module Module1
                 Dim MoveLegal As Boolean = CurrentPlayer.CheckPlayerMove(Choice, StartSquareReference, FinishSquareReference) 'checks if the move is in the possible move options for that move
                 If MoveLegal Then 'Perform the move (if its legal)
                     Dim PointsForPieceCapture As Integer = CalculatePieceCapturePoints(FinishSquareReference)
-                    CurrentPlayer.ChangeScore(-(Choice + (2 * (Choice - 1))))
+                    If getturnsCamped() = False Then
+                        CurrentPlayer.ChangeScore(-(Choice + (2 * (Choice - 1))))
+                    End If
                     CurrentPlayer.UpdateQueueAfterMove(Choice)
                     UpdateBoard(StartSquareReference, FinishSquareReference)
                     UpdatePlayerScore(PointsForPieceCapture)
@@ -218,11 +220,27 @@ Module Module1
                     CurrentPlayer = Players(0)
                 End If
                 GameOver = CheckIfGameOver()
+                checkCamp()
             End While
             DisplayState()
             DisplayFinalResult()
         End Sub
 
+        Private Function getturnsCamped()
+            For Each s As Square In Board
+                If s.ContainsTaziz() Then
+                    Return s.GetCampedTurns()
+                End If
+            Next
+        End Function
+
+        Private Sub checkCamp()
+            For Each s As Square In Board
+                If s.ContainsTaziz() And s.GetPieceInSquare() IsNot Nothing Then
+                    s.incremeant()
+                End If
+            Next
+        End Sub
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
@@ -247,6 +265,8 @@ Module Module1
                         S = New Kotla(Players(0), "K")
                     ElseIf Row = NoOfRows And Column = NoOfColumns \ 2 + 1 Then
                         S = New Kotla(Players(1), "k")
+                    ElseIf Row = NoOfRows \ 2 And Column = NoOfColumns \ 2 + 1 Then
+                        S = New Tazis()
                     Else
                         S = New Square()
                     End If
@@ -419,6 +439,7 @@ Module Module1
         Protected Symbol As String 'the text to display in a square
         Protected PieceInSquare As Piece 'indicates what piece is saved in a square
         Protected BelongsTo As Player 'indicates if a square has a piece which belongs to a certain player
+        Protected CampedTurns As Integer
 
         'belongsTo seems to always be equal to nothing for this class
         'apart from the inherited class
@@ -461,6 +482,19 @@ Module Module1
                 Return False
             End If
         End Function
+
+        Public Overridable Function ContainsTaziz() As Boolean
+            Return False
+        End Function
+        Public Sub incremeant()
+            CampedTurns = CampedTurns + 1
+        End Sub
+        Public Overridable Function GetCampedTurns() As Boolean
+            If CampedTurns >= 2 Then
+                Return True
+            End If
+            Return False
+        End Function
     End Class
 
     Class Kotla
@@ -493,20 +527,29 @@ Module Module1
 
     Class Tazis
         Inherits Square
-        Protected CampedTurns As Integer
+
+        Public Sub New()
+            MyBase.New()
+            Symbol = "x"
+        End Sub
 
         Public Overrides Sub SetPiece(P As Piece)
             MyBase.SetPiece(P)
+            CampedTurns = 0
             If P.GetBelongsTo().GetDirection() = 1 Then
                 Symbol = "A"
             Else
                 Symbol = "a"
             End If
-            PieceInSquare = P
         End Sub
+
+        Public Overrides Function ContainsTaziz() As Boolean
+            Return True
+        End Function
 
         Public Overrides Function RemovePiece() As Piece
             Symbol = "x"
+            CampedTurns = 0
             Return MyBase.RemovePiece()
         End Function
 
