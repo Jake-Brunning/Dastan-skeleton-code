@@ -265,7 +265,7 @@ Module Module1
                         S = New Kotla(Players(0), "K")
                     ElseIf Row = NoOfRows And Column = NoOfColumns \ 2 + 1 Then
                         S = New Kotla(Players(1), "k")
-                    ElseIf Row = NoOfRows \ 2 And Column = NoOfColumns \ 2 + 1 Then
+                    ElseIf Row = NoOfRows \ 2 + 1 And Column = NoOfColumns \ 2 Then
                         S = New Tazis()
                     Else
                         S = New Square()
