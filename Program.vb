@@ -192,11 +192,23 @@ Module Module1
                         DisplayState()
                     End If
                 Loop Until Choice >= 1 And Choice <= 3
+
                 Dim StartSquareReference As Integer
                 While Not SquareIsValid 'loop unitl a piece has been selected
                     StartSquareReference = GetSquareReference("containing the piece to move")
                     SquareIsValid = CheckSquareIsValid(StartSquareReference, True) '
                 End While
+                If CurrentPlayer.CheckMoveOptionIsSahm(Choice) And CurrentPlayer.GetSahmUsed() = False Then
+                    CurrentPlayer.SetSahmUsed()
+
+                    If CurrentPlayer.SameAs(Players(0)) Then 'swap players
+                        CurrentPlayer = Players(1)
+                    Else
+                        CurrentPlayer = Players(0)
+                    End If
+                    GameOver = CheckIfGameOver()
+                    Continue While
+                End If
                 Dim FinishSquareReference As Integer
                 SquareIsValid = False
                 While Not SquareIsValid
@@ -222,7 +234,13 @@ Module Module1
             DisplayState()
             DisplayFinalResult()
         End Sub
+        Private Function CalculateSahmMove(squareReference As Integer) As Integer
+            Dim total As Integer = 0
+            Dim squareIndex As Integer = GetIndexOfSquare(squareReference)
+            For i As Integer = (squareIndex + NoOfRows) \ NoOfRows To NoOfRows
 
+            Next
+        End Function
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
         End Sub
@@ -271,6 +289,7 @@ Module Module1
         End Sub
 
         Private Sub CreateMoveOptionOffer() 'the move option offers for both players to use. seperate from the move queue
+            MoveOptionOffer.Add("Sahm")
             MoveOptionOffer.Add("jazair")
             MoveOptionOffer.Add("chowkidar")
             MoveOptionOffer.Add("cuirassier")
@@ -278,6 +297,13 @@ Module Module1
             MoveOptionOffer.Add("faujdar")
         End Sub
         '-----Following functions make the list of possible move options to each Move option----------
+
+        Private Function CreateSahmMoveOption(ByVal Direction As Integer) As MoveOption
+            Dim NewMoveOption As MoveOption = New MoveOption("Sahm")
+            NewMoveOption.AddToPossibleMoves(New Move(0, 0))
+            Return NewMoveOption
+        End Function
+
         Private Function CreateRyottMoveOption(ByVal Direction As Integer) As MoveOption
             Dim NewMoveOption As MoveOption = New MoveOption("ryott")
             Dim NewMove As Move = New Move(0, 1 * Direction)
@@ -577,12 +603,20 @@ Module Module1
         Private Name As String
         Private Direction, Score As Integer '-1 for moving pieces down, 1 for moving pieces up
         Private Queue As New MoveOptionQueue() 'The moves the player can select (the options available to them)
-
+        Private SahmUsed As Boolean = False
         Sub New(ByVal N As String, ByVal D As Integer)
             Score = 100
             Name = N
             Direction = D
         End Sub
+
+        Public Sub SetSahmUsed()
+            SahmUsed = True
+        End Sub
+
+        Public Function GetSahmUsed() As Boolean
+            Return SahmUsed
+        End Function
 
         Public Function SameAs(ByVal APlayer As Player) As Boolean 'Identifies a player based on name. Used for checking who won, checking if a player owns a square, etc
             If APlayer Is Nothing Then
@@ -625,6 +659,13 @@ Module Module1
         Public Sub ChangeScore(ByVal Amount As Integer)
             Score += Amount
         End Sub
+
+        Public Function CheckMoveOptionIsSahm(Choice As Integer) As Boolean
+            If Queue.GetMoveOptionInPosition(Choice).GetName() = "Sahm" Then
+                Return True
+            End If
+            Return False
+        End Function
 
         Public Function CheckPlayerMove(ByVal Pos As Integer, ByVal StartSquareReference As Integer, FinishSquareReference As Integer) As Boolean 'checks if a move is possible or not
             Dim Temp As MoveOption = Queue.GetMoveOptionInPosition(Pos - 1) ' Temp = Move the player has selected
