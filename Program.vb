@@ -185,11 +185,22 @@ Module Module1
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
                 Do 'loop unitl a correct move option from queue is picked
-                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
+                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer or 7 to sacrifice a piece: ")
                     Choice = Console.ReadLine()
                     If Choice = 9 Then 'using move offer
                         UseMoveOptionOffer()
                         DisplayState()
+                    End If
+
+                    If Choice = 7 Then
+                        ReplaceKotlaWithPiece(CurrentPlayer)
+                        DisplayState()
+                        If CurrentPlayer.SameAs(Players(0)) Then 'swap players
+                            CurrentPlayer = Players(1)
+                        Else
+                            CurrentPlayer = Players(0)
+                        End If
+                        Continue While
                     End If
                 Loop Until Choice >= 1 And Choice <= 3
                 Dim StartSquareReference As Integer
@@ -221,6 +232,22 @@ Module Module1
             End While
             DisplayState()
             DisplayFinalResult()
+        End Sub
+
+        Private Sub ReplaceKotlaWithPiece(P As Player)
+            Dim valid As Boolean = False
+            Dim squareReference As Integer
+            While valid = False
+                Console.WriteLine("Enter a piece to sacrifice")
+                squareReference = Console.ReadLine()
+                valid = CheckSquareIsValid(squareReference, True) And Board(GetIndexOfSquare(squareReference)).ContainsKotla = False
+            End While
+            If P.SameAs(Players(0)) Then
+                Board(GetIndexOfSquare(squareReference)) = New Kotla(P, "K")
+            Else
+                Board(GetIndexOfSquare(squareReference)) = New Kotla(P, "k")
+            End If
+            Board(GetIndexOfSquare(squareReference)).RemovePiece()
         End Sub
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
