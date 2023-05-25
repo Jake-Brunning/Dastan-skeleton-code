@@ -185,10 +185,14 @@ Module Module1
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
                 Do 'loop unitl a correct move option from queue is picked
-                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
+                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer or 6: ")
                     Choice = Console.ReadLine()
                     If Choice = 9 Then 'using move offer
                         UseMoveOptionOffer()
+                        DisplayState()
+                    End If
+                    If Choice = 6 Then
+                        ModifyQueueOptions(CurrentPlayer)
                         DisplayState()
                     End If
                 Loop Until Choice >= 1 And Choice <= 3
@@ -221,6 +225,31 @@ Module Module1
             End While
             DisplayState()
             DisplayFinalResult()
+        End Sub
+
+        Private Sub ModifyQueueOptions(CurrentPlayer As Player)
+            Console.WriteLine("                 a) Reverse the current player queue
+                               b) Swap the current player quee with the opponent queue
+                               c) Swap the first and last elements in the current player queue
+                               d) Move one of the move options to the front of the current player queue
+                               e) Nothing (make a normal move)")
+
+            Dim input As Char = Console.ReadLine()
+            CurrentPlayer.ChangeScore(-3)
+            Select Case input
+                Case "a"
+                    CurrentPlayer.ReverseQueue()
+                Case "b"
+                    Players(1).ReplaceQueue(Players(0).ReplaceQueue(Players(1).getMoveOptionQueue()))
+                Case "c"
+                    CurrentPlayer.SwapFirstAndLast()
+                Case "d"
+                    Console.WriteLine("What index to move to the front?")
+                    Dim index As Integer = Console.ReadLine()
+                    CurrentPlayer.MoveitemToFront(index - 1)
+                Case Else
+                    CurrentPlayer.ChangeScore(3)
+            End Select
         End Sub
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
@@ -554,6 +583,22 @@ Module Module1
             Return QueueAsString
         End Function
 
+        Public Sub reverseQueue()
+            Queue.Reverse()
+        End Sub
+
+        Public Sub SwapFirstAndLast()
+            Dim temp As MoveOption = Queue(Queue.Count - 1)
+            Queue(Queue.Count - 1) = Queue(0)
+            Queue(0) = temp
+        End Sub
+
+        Public Sub MoveItemToFront(input As Integer)
+            Dim temp As MoveOption = Queue(input)
+            Queue(input) = Queue(0)
+            Queue(0) = temp
+        End Sub
+
         Public Sub Add(ByVal NewMoveOption As MoveOption) 'adding a move to the queue
             Queue.Add(NewMoveOption)
         End Sub
@@ -582,6 +627,27 @@ Module Module1
             Score = 100
             Name = N
             Direction = D
+        End Sub
+
+
+        Public Sub ReverseQueue()
+            Queue.reverseQueue()
+        End Sub
+
+        Public Function getMoveOptionQueue()
+            Return Queue
+        End Function
+        Public Function ReplaceQueue(Queue As MoveOptionQueue)
+            Dim temp As MoveOptionQueue = Me.Queue
+            Me.Queue = Queue
+            Return temp
+        End Function
+        Public Sub SwapFirstAndLast()
+            Queue.SwapFirstAndLast()
+        End Sub
+
+        Public Sub MoveitemToFront(index As Integer)
+            Queue.MoveItemToFront(index)
         End Sub
 
         Public Function SameAs(ByVal APlayer As Player) As Boolean 'Identifies a player based on name. Used for checking who won, checking if a player owns a square, etc
