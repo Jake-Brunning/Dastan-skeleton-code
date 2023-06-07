@@ -278,6 +278,21 @@ Module Module1
             MoveOptionOffer.Add("faujdar")
         End Sub
         '-----Following functions make the list of possible move options to each Move option----------
+
+        Private Function CreateSarukhMoveOption(ByVal Direction As Integer)
+            Dim NewMoveOption As MoveOption = New MoveOption("Sarukh")
+            Dim NewMove As Move = New Move(0, 1)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(0, -1)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(1 * Direction, 1)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(-1 * Direction, -1)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            NewMove = New Move(2 * Direction, 0)
+            NewMoveOption.AddToPossibleMoves(NewMove)
+            Return NewMoveOption
+        End Function
         Private Function CreateRyottMoveOption(ByVal Direction As Integer) As MoveOption
             Dim NewMoveOption As MoveOption = New MoveOption("ryott")
             Dim NewMove As Move = New Move(0, 1 * Direction)
@@ -363,6 +378,8 @@ Module Module1
                 Return CreateFaujdarMoveOption(Direction)
             ElseIf Name = "jazair" Then
                 Return CreateJazairMoveOption(Direction)
+            ElseIf Name = "Sarukh" Then
+                Return CreateSarukhMoveOption(Direction)
             Else
                 Return CreateCuirassierMoveOption(Direction)
             End If
@@ -370,12 +387,14 @@ Module Module1
 
         Private Sub CreateMoveOptions() 'initilses the starting move option queue
             Players(0).AddToMoveOptionQueue(CreateMoveOption("ryott", 1))
+            Players(0).AddToMoveOptionQueue(CreateMoveOption("Sarukh", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("chowkidar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("cuirassier", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("faujdar", 1))
             Players(0).AddToMoveOptionQueue(CreateMoveOption("jazair", 1))
 
             Players(1).AddToMoveOptionQueue(CreateMoveOption("ryott", -1))
+            Players(1).AddToMoveOptionQueue(CreateMoveOption("Sarukh", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("chowkidar", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("jazair", -1))
             Players(1).AddToMoveOptionQueue(CreateMoveOption("faujdar", -1))
