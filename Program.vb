@@ -184,6 +184,7 @@ Module Module1
                 DisplayState()
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
+                Dim scoreBeforeMove As Integer
                 Do 'loop unitl a correct move option from queue is picked
                     Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
                     Choice = Console.ReadLine()
@@ -195,7 +196,7 @@ Module Module1
                 Dim StartSquareReference As Integer
                 While Not SquareIsValid 'loop unitl a piece has been selected
                     StartSquareReference = GetSquareReference("containing the piece to move")
-                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True) '
+                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True)
                 End While
                 Dim FinishSquareReference As Integer
                 SquareIsValid = False
@@ -205,6 +206,7 @@ Module Module1
                 End While
                 Dim MoveLegal As Boolean = CurrentPlayer.CheckPlayerMove(Choice, StartSquareReference, FinishSquareReference) 'checks if the move is in the possible move options for that move
                 If MoveLegal Then 'Perform the move (if its legal)
+                    scoreBeforeMove = CurrentPlayer.GetScore()
                     Dim PointsForPieceCapture As Integer = CalculatePieceCapturePoints(FinishSquareReference)
                     CurrentPlayer.ChangeScore(-(Choice + (2 * (Choice - 1))))
                     CurrentPlayer.UpdateQueueAfterMove(Choice)
@@ -212,6 +214,23 @@ Module Module1
                     UpdatePlayerScore(PointsForPieceCapture)
                     Console.WriteLine("New score: " & CurrentPlayer.GetScore() & Environment.NewLine)
                 End If
+
+                DisplayBoard()
+                Console.WriteLine("Do you want to undo your move (1 to accept, 2 to decline)")
+                Dim undoornot As Integer = Console.ReadLine()
+                If undoornot = 1 Then
+                    'reset score
+                    CurrentPlayer.ChangeScore(-CurrentPlayer.GetScore())
+                    CurrentPlayer.ChangeScore(scoreBeforeMove - 5)
+                    'reset queue
+                    CurrentPlayer.ResetQueueBackAfterUndo(Choice - 1)
+                    'reset board
+                    Dim temp As Square = Board(GetIndexOfSquare(StartSquareReference))
+                    Board(GetIndexOfSquare(StartSquareReference)) = Board(GetIndexOfSquare(FinishSquareReference))
+                    Board(GetIndexOfSquare(FinishSquareReference)) = temp
+                    Continue While
+                End If
+
                 If CurrentPlayer.SameAs(Players(0)) Then 'swap players
                     CurrentPlayer = Players(1)
                 Else
@@ -544,6 +563,13 @@ Module Module1
     Class MoveOptionQueue 'The queue of available moves to choose from
         Private Queue As New List(Of MoveOption) 'contains the 5 possible moves the player can see.
 
+
+        Public Sub ResetQueueBack(ByVal pos As Integer)
+            Dim temp As MoveOption = Queue(Queue.Count - 1)
+            Queue(Queue.Count - 1) = Queue(pos)
+            Queue(pos) = temp
+        End Sub
+
         Public Function GetQueueAsString() 'for displaying the moves possible to the player
             Dim QueueAsString As String = ""
             Dim Count As Integer = 1
@@ -577,6 +603,11 @@ Module Module1
         Private Name As String
         Private Direction, Score As Integer '-1 for moving pieces down, 1 for moving pieces up
         Private Queue As New MoveOptionQueue() 'The moves the player can select (the options available to them)
+
+
+        Public Sub ResetQueueBackAfterUndo(ByVal pos As Integer)
+            Queue.ResetQueueBack(pos)
+        End Sub
 
         Sub New(ByVal N As String, ByVal D As Integer)
             Score = 100
