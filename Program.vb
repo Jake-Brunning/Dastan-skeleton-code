@@ -184,14 +184,19 @@ Module Module1
                 DisplayState()
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
+                Dim currentlyUsingWafr = False
+                If CurrentPlayer.GetWafrAwarded() = False Then
+                    currentlyUsingWafr = AwardWafr()
+                    CurrentPlayer.SetWafrAwarded(currentlyUsingWafr)
+                End If
                 Do 'loop unitl a correct move option from queue is picked
                     Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
                     Choice = Console.ReadLine()
-                    If Choice = 9 Then 'using move offer
+                    If Choice = 9 And currentlyUsingWafr = False Then 'using move offer
                         UseMoveOptionOffer()
                         DisplayState()
                     End If
-                Loop Until Choice >= 1 And Choice <= 3
+                Loop Until (Choice >= 1 And Choice <= 3) Or currentlyUsingWafr And (Choice >= 1 And Choice <= 5)
                 Dim StartSquareReference As Integer
                 While Not SquareIsValid 'loop unitl a piece has been selected
                     StartSquareReference = GetSquareReference("containing the piece to move")
@@ -206,7 +211,9 @@ Module Module1
                 Dim MoveLegal As Boolean = CurrentPlayer.CheckPlayerMove(Choice, StartSquareReference, FinishSquareReference) 'checks if the move is in the possible move options for that move
                 If MoveLegal Then 'Perform the move (if its legal)
                     Dim PointsForPieceCapture As Integer = CalculatePieceCapturePoints(FinishSquareReference)
-                    CurrentPlayer.ChangeScore(-(Choice + (2 * (Choice - 1))))
+                    If currentlyUsingWafr = False Then
+                        CurrentPlayer.ChangeScore(-(Choice + (2 * (Choice - 1))))
+                    End If
                     CurrentPlayer.UpdateQueueAfterMove(Choice)
                     UpdateBoard(StartSquareReference, FinishSquareReference)
                     UpdatePlayerScore(PointsForPieceCapture)
@@ -222,6 +229,15 @@ Module Module1
             DisplayState()
             DisplayFinalResult()
         End Sub
+
+        Private Function AwardWafr() As Boolean
+            Dim randNum As Integer = RGen.Next(0, 4)
+            If randNum = 3 Then
+                Console.WriteLine("YOu have been awarded a Wafr, you can select any move from your queue for free this turn")
+                Return True
+            End If
+            Return False
+        End Function
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
@@ -577,6 +593,15 @@ Module Module1
         Private Name As String
         Private Direction, Score As Integer '-1 for moving pieces down, 1 for moving pieces up
         Private Queue As New MoveOptionQueue() 'The moves the player can select (the options available to them)
+        Private WafrAwarded As Boolean = False
+
+        Public Function GetWafrAwarded()
+            Return WafrAwarded
+        End Function
+
+        Public Sub SetWafrAwarded(ByVal newValue As Boolean)
+            WafrAwarded = newValue
+        End Sub
 
         Sub New(ByVal N As String, ByVal D As Integer)
             Score = 100
