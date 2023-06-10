@@ -144,16 +144,17 @@ Module Module1
         End Function
 
         Private Function GetSquareReference(ByVal Description As String) As Integer 'gets a user input for entering a square to move to or to select a piece from the board (Any user input really)
-            Dim SelectedSquare As Integer
-            Console.Write("Enter the square " & Description & " (row number followed by column number): ")
-            SelectedSquare = Console.ReadLine()
+            Dim SelectedSquare As Integer = GetValidInt("Enter the square " + Description + " (row number followed by column number): ")
             Return SelectedSquare
         End Function
 
         Private Sub UseMoveOptionOffer() 'self explanatory (when the player chooses the offer displayed to them)
             Dim ReplaceChoice As Integer
-            Console.Write("Choose the move option from your queue to replace (1 to 5): ")
-            ReplaceChoice = Console.ReadLine()
+            Dim valid As Boolean = False
+            While valid = False
+                ReplaceChoice = GetValidInt("Choose the move option from your queue to replace (1 to 5): ")
+                valid = ReplaceChoice >= 1 And ReplaceChoice <= 5
+            End While
             CurrentPlayer.UpdateMoveOptionQueueWithOffer(ReplaceChoice - 1, CreateMoveOption(MoveOptionOffer(MoveOptionOfferPosition), CurrentPlayer.GetDirection()))
             CurrentPlayer.ChangeScore(-(10 - (ReplaceChoice * 2)))
             MoveOptionOfferPosition = RGen.Next(0, 5) 'randomly choose the next move offer to display
@@ -185,8 +186,7 @@ Module Module1
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
                 Do 'loop unitl a correct move option from queue is picked
-                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
-                    Choice = Console.ReadLine()
+                    Choice = GetValidInt("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
                     If Choice = 9 Then 'using move offer
                         UseMoveOptionOffer()
                         DisplayState()
@@ -195,7 +195,7 @@ Module Module1
                 Dim StartSquareReference As Integer
                 While Not SquareIsValid 'loop unitl a piece has been selected
                     StartSquareReference = GetSquareReference("containing the piece to move")
-                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True) '
+                    SquareIsValid = CheckSquareIsValid(StartSquareReference, True)
                 End While
                 Dim FinishSquareReference As Integer
                 SquareIsValid = False
@@ -222,6 +222,18 @@ Module Module1
             DisplayState()
             DisplayFinalResult()
         End Sub
+
+        Private Function GetValidInt(ByVal message As String) As Integer
+            Dim valid As Boolean = False
+            Dim input As String = ""
+            Dim numToReturn As Integer
+            While valid = False
+                Console.WriteLine(message)
+                input = Console.ReadLine()
+                valid = Integer.TryParse(input, numToReturn)
+            End While
+            Return numToReturn
+        End Function
 
         Private Sub UpdateBoard(ByVal StartSquareReference As Integer, ByVal FinishSquareReference As Integer) 'moves the piece from the start square to the finish square
             Board(GetIndexOfSquare(FinishSquareReference)).SetPiece(Board(GetIndexOfSquare(StartSquareReference)).RemovePiece())
