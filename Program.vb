@@ -185,10 +185,20 @@ Module Module1
                 Dim SquareIsValid As Boolean = False
                 Dim Choice As Integer
                 Do 'loop unitl a correct move option from queue is picked
-                    Console.Write("Choose move option to use from queue (1 to 3) or 9 to take the offer: ")
+                    Console.Write("Choose move option to use from queue (1 to 3) , 9 to take the offer or 8 to spy on the opponents queue: ")
                     Choice = Console.ReadLine()
                     If Choice = 9 Then 'using move offer
                         UseMoveOptionOffer()
+                        DisplayState()
+                    End If
+                    If Choice = 8 Then
+                        Console.WriteLine("Displaying the opponets Queue")
+                        CurrentPlayer.ChangeScore(-5)
+                        If CurrentPlayer.SameAs(Players(0)) Then
+                            Console.WriteLine(Players(1).GetJustQueue())
+                        Else
+                            Console.WriteLine(Players(0).GetJustQueue())
+                        End If
                         DisplayState()
                     End If
                 Loop Until Choice >= 1 And Choice <= 3
@@ -577,6 +587,11 @@ Module Module1
         Private Name As String
         Private Direction, Score As Integer '-1 for moving pieces down, 1 for moving pieces up
         Private Queue As New MoveOptionQueue() 'The moves the player can select (the options available to them)
+
+        Public Function GetJustQueue() As String
+            Return Queue.GetQueueAsString()
+        End Function
+
 
         Sub New(ByVal N As String, ByVal D As Integer)
             Score = 100
